@@ -11,7 +11,7 @@ exports.upload = multer({
     storage: storage, 
     fileFilter: (req, file, cb) => {
       //Allowed file type
-      const allowedMimes = ["application/pdf"];
+      const allowedMimes = ["application/pdf", "image/jpeg", "image/png"];
   
       if (allowedMimes.includes(file.mimetype)) {
         console.log('Hello World')

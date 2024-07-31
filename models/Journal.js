@@ -18,6 +18,11 @@ const JournalSchema = new Schema({
         ref: 'User',
         required: true,
     },
+
+    reviewers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }], 
     
     submissionDate: {
         type: Date,
@@ -37,11 +42,15 @@ const JournalSchema = new Schema({
 
     status: {
         type: String,
-        enum: ['Submitted', 'Under Review',  'Accepted', 'Rejected', 'Published'],
+        enum: ['Submitted', 'In-Review',  'Accepted', 'Rejected', 'Published'],
         default: 'Submitted',
     },
 
     versions: [{
+        issueId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Issue',
+        }, 
         documentUrl: {
             type: String,
             required: true

@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 
-const AdminRoute = require("./routes/adminRoutes")
-const authRoute = require("./routes/authRoute")
-const journalRoute = require("./routes/journalRoute")
-const chiefRoute = require("./routes/chiefRoute")
+const AdminRoute = require("./routes/adminRoutes");
+const authRoute = require("./routes/authRoute");
+const journalRoute = require("./routes/journalRoute");
+const chiefRoute = require("./routes/chiefRoute");
+const reviewerRoute = require("./routes/reviewerRoute");
+const issueRoute  = require("./routes/issueRoute");
 const globalErrorMiddleware = require("./controllers/errorControllers");
 const AppError = require("./utils/appError");
 
@@ -40,6 +42,8 @@ app.use(`${process.env.API_BASE_URL}/admin`, AdminRoute);
 app.use(`${process.env.API_BASE_URL}/auth`, authRoute);
 app.use(`${process.env.API_BASE_URL}/journal`, journalRoute);
 app.use(`${process.env.API_BASE_URL}/chief-editor`, chiefRoute);
+app.use(`${process.env.API_BASE_URL}/reviewer`, reviewerRoute);
+app.use(`${process.env.API_BASE_URL}/issue`, issueRoute);
 
 // Any request that makes it to this part has lost it's way
 app.all("*", (req, res, next) => {
