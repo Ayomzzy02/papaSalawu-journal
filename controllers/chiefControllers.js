@@ -1,6 +1,7 @@
 const Journal = require('../models/Journal');
 const User = require('../models/User');
 const AppError = require("../utils/appError");
+const Issue = require("../models/Issue");
 const catchAsync = require("../utils/catchAsync");
 
 exports.getUserArticles = catchAsync(async function (req, res, next) {
@@ -93,7 +94,9 @@ exports.getReviewers = catchAsync(async (req, res, next) => {
 
         if (!article) {
             return next(new AppError('No article found with that ID', 404));
-        }
+        };
+
+        const articleStatus = article.status; // Get the status field from the article
 
          // Get the department from the article
          const department = article.department;
@@ -105,16 +108,10 @@ exports.getReviewers = catchAsync(async (req, res, next) => {
              status: 'success',
              data: {
                  reviewers: article.reviewers,
-                 allReviewers
+                 allReviewers,
+                 articleStatus // Include the status field in the response
              }
          });
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                reviewers: article.reviewers
-            }
-        });
     } catch (error) {
         return next(new AppError(`Internal Server Error: ${error.message}`, 500));
     }
@@ -123,16 +120,26 @@ exports.getReviewers = catchAsync(async (req, res, next) => {
 exports.acceptArticle = catchAsync(async (req, res, next) => {
     try {
         const { articleId } = req.params;
+        // Check for open issues related to the article
+        const openIssues = await Issue.find({ articleId: articleId, status: 'Opened' });
+
+        if (openIssues.length > 0 ) {
+            console.log("Hello World")
+            return res.status(400).json({
+                status: 'failed',
+                data: "Cannot accept the article. There are open issues for this article."
+            });
+        }
 
         // Find the article by ID and update its status to 'Accepted'
-        const updatedArticle = await Article.findByIdAndUpdate(
+        const updatedArticle = await Journal.findByIdAndUpdate(
             articleId,
             { status: 'Accepted' },
             { new: true, runValidators: true }
         );
 
         if (!updatedArticle) {
-          return res.status(404).json({
+            return res.status(404).json({
                 status: 'failed',
                 data: "Article not found"
             });
