@@ -99,3 +99,41 @@ exports.createIssue = catchAsync(async function (req, res, next) {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
+exports.openIssue = catchAsync(async function (req, res, next) {
+    try {
+        const { issueId } = req.params;
+
+        // Find the issue by ID and populate the necessary fields
+        const issue = await Issue.findById(issueId)
+            .populate('conversations.userId', 'anonymousName')
+            .populate('openedBy', 'anonymousName');
+
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue not found' });
+        }
+
+        // Extract conversations and format them
+        const conversations = issue.conversations.map(conversation => ({
+            anonymousName: conversation.userId.anonymousName,
+            content: conversation.message.contentText,
+            fileUrl: conversation.message.contentFileUrl || null,
+            timeSince: formatDistanceToNow(new Date(conversation.time), { addSuffix: true })
+        }));
+
+        // Prepare the response data
+        const responseData = {
+            title: issue.title,
+            description: issue.description,
+            openedBy: issue.openedBy.anonymousName,
+            timeSinceOpened: formatDistanceToNow(new Date(issue.time), { addSuffix: true }),
+            conversations
+        };
+
+        res.status(200).json({ data: responseData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});

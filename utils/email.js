@@ -37,6 +37,7 @@ const sendLoginDetailsEmail = async function (user) {
       body,
     });
   } catch (error) {
+    console.log(error)
     throw new Error("There was an error sending the email. Try again later!");
   }
 };
