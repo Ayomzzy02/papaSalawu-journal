@@ -14,8 +14,6 @@ exports.upload = multer({
       const allowedMimes = ["application/pdf", "image/jpeg", "image/png"];
   
       if (allowedMimes.includes(file.mimetype)) {
-        console.log('Hello World')
-        console.log(file.mimetype)
         cb(null, true);
       } else {
         cb(

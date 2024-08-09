@@ -49,6 +49,7 @@ exports.getAllIssues = catchAsync(async function (req, res, next) {
                 response.closedIssuesCount += 1;
             }
             return {
+                issueId: issue._id,
                 title: issue.title,
                 status: issue.status,
                 openedBy: issue.openedBy ? issue.openedBy.anonymousName : 'Unknown',
@@ -101,7 +102,7 @@ exports.createIssue = catchAsync(async function (req, res, next) {
 });
 
 
-exports.openIssue = catchAsync(async function (req, res, next) {
+exports.getConversations = catchAsync(async function (req, res, next) {
     try {
         const { issueId } = req.params;
 
@@ -111,7 +112,7 @@ exports.openIssue = catchAsync(async function (req, res, next) {
             .populate('openedBy', 'anonymousName');
 
         if (!issue) {
-            return res.status(404).json({ message: 'Issue not found' });
+            return res.status(200).json({ message: 'Issue not found' });
         }
 
         // Extract conversations and format them
@@ -132,6 +133,51 @@ exports.openIssue = catchAsync(async function (req, res, next) {
         };
 
         res.status(200).json({ data: responseData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+exports.addConversations = catchAsync(async function (req, res, next) {
+    try {
+        const { issueId } = req.params;
+        const { content } = req.body;
+
+        const userId = req.user.id; // Assuming you have user authentication and can get the user ID
+
+        if (!content) {
+            return res.status(400).json({ message: 'Content is required' });
+        }
+
+        // Create a new conversation object
+        const newConversation = {
+            userId,
+            message: {
+                contentText: content,
+                contentFileUrl: req.file ? `/uploads/${req.file.filename}` : null
+            },
+            time: new Date()
+        };
+
+         // Find the issue by ID
+         const issue = await Issue.findById(issueId);
+         if (!issue) {
+             return res.status(404).json({ message: 'Issue not found' });
+         }
+ 
+         // Add userId to reviewers array if not already present
+         if (!issue.reviewers.includes(userId)) {
+             issue.reviewers.push(userId);
+         }
+ 
+         // Add the new conversation to the conversations array
+         issue.conversations.push(newConversation);
+         await issue.save();
+ 
+         res.status(200).json({ message: 'Conversation added successfully', data: newConversation });
+       
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

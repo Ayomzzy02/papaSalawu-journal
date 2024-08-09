@@ -1,4 +1,4 @@
-exports.generateLoginDetailsEmailHTML = function (name, email, password) {
+exports.generateLoginDetailsEmailHTML = function (name, email, password, role) {
     return `
       <!DOCTYPE html>
       <html>
@@ -7,7 +7,7 @@ exports.generateLoginDetailsEmailHTML = function (name, email, password) {
       </head>
       <body>
           <h1>Welcome, ${name}!</h1>
-          <p>You have been added as a Chief Editor in our Journal Publishing Application. Below are your login details:</p>
+          <p>You have been added as a ${role} in our Journal Publishing Application. Below are your login details:</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Password:</strong> ${password}</p>
           <p>Please use the above credentials to log in to your account and change your password after the first login.</p>

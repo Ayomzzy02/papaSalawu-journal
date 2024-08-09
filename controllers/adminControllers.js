@@ -13,12 +13,11 @@ exports.addChiefEditor = catchAsync(async (req, res, next) => {
 
     try{
         const { email, name, department } = req.body;
+        const role = "Chief-Editor"
 
         //Generate password
         const password = Math.random().toString(36).slice(-8);
-        //await sendLoginDetailsEmail(name, email, password)
-
-        console.log(password)
+        await sendLoginDetailsEmail(name, email, password, role);
 
         //Create new Chief-Editor User
         const newUser = User.create({
@@ -43,6 +42,7 @@ exports.addChiefEditor = catchAsync(async (req, res, next) => {
 exports.addReviewer = catchAsync(async function (req, res, next) {
   try{
     const { email, name, department, anonymousName } = req.body;
+    const role = "Reviewer"
 
     const checkUser = await User.findOne({ email });
 
@@ -55,9 +55,7 @@ exports.addReviewer = catchAsync(async function (req, res, next) {
     
     //Generate password
     const password = Math.random().toString(36).slice(-8);
-    //await sendLoginDetailsEmail(name, email, password)
-
-    console.log(password)
+    await sendLoginDetailsEmail(name, email, password, role)
 
     //Create new Chief-Editor User
     const newUser = User.create({
@@ -106,7 +104,6 @@ exports.verifyPayment = catchAsync(async (req, res, next) => {
       return next(new AppError('Error Verifying Payment', 400));
     }
 
-    console.log('Successfully')
     res.status(200).json({
       status: 'success',
       message: "Payment Verified"

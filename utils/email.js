@@ -23,16 +23,17 @@ const emailSender = async function (options) {
   console.log("Message sent %s", info.messageId);
 };
 
-const sendLoginDetailsEmail = async function (user) {
+const sendLoginDetailsEmail = async function (name, email, password, role) {
   try {
     const body = generateLoginDetailsEmailHTML(
-      user.name,
-      user.email,
-      user.password
+      name,
+      email,
+      password,
+      role
     );
     const subject = `Login Information for Your Chief Editor Account`;
     await emailSender({
-      email: user.email,
+      email: email,
       subject,
       body,
     });
