@@ -51,29 +51,37 @@ exports.getUserArticles = catchAsync(async function (req, res, next) {
 
 exports.addReviewer = catchAsync(async (req, res, next) => {
     try {
-      const { reviewerID } = req.body;
-      const { articleId } = req.params;
-  
-      if (!reviewerID || !articleId) {
-        return next(new AppError('Reviewer ID and Article ID are required', 400));
-      }
-  
-      const journal = await Journal.findByIdAndUpdate(
-        articleId,
-        { $addToSet: { reviewers: reviewerID } }, // Using $addToSet to avoid duplicates
-        { new: true, runValidators: true }
-      );
-  
-      if (!journal) {
-        return next(new AppError('No article found with that ID', 404));
-      }
-  
-      res.status(200).json({
-        status: 'success',
-        message: `New Reviewer Added`,
-      });
+        const { reviewerID } = req.body;
+        const { articleId } = req.params;
+
+        if (!reviewerID || !articleId) {
+            return next(new AppError('Reviewer ID and Article ID are required', 400));
+        }
+
+        const journal = await Journal.findById(articleId);
+
+        if (!journal) {
+            return next(new AppError('No article found with that ID', 404));
+        }
+
+        // Add reviewer if not already added
+        if (!journal.reviewers.includes(reviewerID)) {
+            journal.reviewers.push(reviewerID);
+        }
+
+        // Check if the journal status is "Submitted"
+        if (journal.status === 'Submitted') {
+            journal.status = 'In-Review';
+        }
+
+        await journal.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: `New Reviewer Added and Journal status updated to ${journal.status}`,
+        });
     } catch (error) {
-      return next(new AppError(`Internal Server Error: ${error.message}`, 500));
+        return next(new AppError(`Internal Server Error: ${error.message}`, 500));
     }
 });
 
