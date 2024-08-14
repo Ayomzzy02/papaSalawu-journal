@@ -15,7 +15,7 @@ const authenticateResponse = async function (
   res.cookie('token', token, {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiration
     httpOnly: true,
-    path: '/', // Specify the path where the cookie is available
+    path: '/journalapp', // Specify the path where the cookie is available
     domain: 'nijetunilorin.com',
   });
 
